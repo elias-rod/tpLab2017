@@ -20,6 +20,28 @@ $app->get('/hello/{name}', function (Request $request, Response $response) {
     return $response;
 });
 
+//GENERACION DEL HTML PARA LA TABLA PRINCIPAL DEL ADMIN
+$app->get('/tablaPrincipalAdmin', function (Request $request, Response $response) {
+	//GENERACION DE ARRAY DE USUARIOS
+	$contenido = Usuario::ObtenerTodosUsuarios();
+	//CREACION DE ARRAY VACIO QUE CONTENDRA LA TABLA
+	$respuesta['tabla'] = '';
+
+	for ($fila=0; $fila < count($contenido); $fila++) {
+		$respuesta['tabla'] .= 
+		'<tr>
+			<td><img class="fotoPrevia" src="/fotosUsuarios/' . $contenido[$fila]['id'] . '.png?' . microtime()/*ESTO GENERA UN PATH UNICO (PREVINIENDO CACHEADO)*/ . '" /></td>
+			<td>' . $contenido[$fila]['email'] . '</td>
+			<td>' . $contenido[$fila]['password'] . '</td>
+			<td>' . $contenido[$fila]['tipo'] . '</td>
+			<td><button type="button" onclick="EliminarUsuario(\'' . $contenido[$fila]['email'] . '\', \'' . $contenido[$fila]['password'] . '\')">Eliminar</button></td>
+			<td><button type="button" onclick="CargarModificacionUsuario(\'' . $contenido[$fila]['id'] . '\', \'' . $contenido[$fila]['email'] . '\', \'' . $contenido[$fila]['password'] . '\', \'' . $contenido[$fila]['tipo'] . '\')">Modificar</button></td>
+		</tr>';
+	}
+	return $response->withJson($respuesta);
+});
+
+//LOGUEO SI EXISTE COMBINACION DE EMAIL Y CONTRASEÑA
 $app->post('/loguear', function (Request $request, Response $response) {
 		//DECODIFICACION DE DATOS DE FORMULARIO Y ALMACENAMIENTO EN ARRAY ASOCIATIVO
 		$datosLogin = $request->getParsedBody();
@@ -61,7 +83,7 @@ $app->post('/loguear', function (Request $request, Response $response) {
 			setcookie('email', $datosLogin['emailIngresado'], time() + (86400 * 30), "/"); // 86400 = 1 day
 		}
 		//CODIFICACION DE LA RESPUESTA
-		echo json_encode($respuesta);
+		return $response->withJson($respuesta);
 });
 
 $app->run();

@@ -56,13 +56,12 @@ function CompletarLogIn(quien){
 //COMPLETAMIENTO DE LA TABLA
 function CompletarTabla(tabla){
 	$.ajax({
-		url : 'nexo.php',
-		method : 'POST',
-		data : {'accion' : tabla}
+		url : 'slim.php/' + tabla,
+		method : 'GET'
 	}).then(
 		function(data){
 			//CONVERSION DEL STRING RECIBIDO A OBJETO
-			data = JSON.parse(data);
+			//data = JSON.parse(data);
 			//VERIFICACION DE INSTRUCCION DE SALIR
 			if (data.salir == true) {
 				window.location.replace('index.html');
@@ -255,9 +254,8 @@ function Loguear()
 		data : {'emailIngresado' : email, 'passwordIngresado' : password, 'recordar' : recordarme}
 	}).then(
 		function(data){
-			console.log(data);
 			//CONVERSION DEL STRING RECIBIDO A OBJETO
-			data = JSON.parse(data);
+			//data = JSON.parse(data);
 			if (data.mensaje != undefined) {
 				$('#mensajeError').html(data.mensaje);
 				return;
