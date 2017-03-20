@@ -7,7 +7,12 @@ require 'vendor/autoload.php';
 require_once('usuario.php');
 require_once('material.php');
 
-$app = new \Slim\App;
+//ORIGINAL
+//$app = new \Slim\App;
+//CONFIGURACION PARA QUE SLIM DETALLE LOS ERRORES
+$app = new \Slim\App(['settings' => ['displayErrorDetails' => true]]);
+
+//METODOS
 $app->get('/hello/{name}', function (Request $request, Response $response) {
     $name = $request->getAttribute('name');
     $response->getBody()->write("Hello, $name");
@@ -41,7 +46,7 @@ $app->post('/loguear', function (Request $request, Response $response) {
 				$respuesta['html'] = file_get_contents('principalUsuario.html');
 	    	}
 	    	else if($tipoUsuario == 'admin'){
-	    		//ALMACENAMIENTO DE LA PAGINA PRINCIPAL DEL USUARIO EN LA RESPUESTA HTML
+	    		//ALMACENAMIENTO DE LA PAGINA PRINCIPAL DEL ADMIN EN LA RESPUESTA HTML
 				$respuesta['html'] = file_get_contents('principalAdmin.html');
 	    	}
 			//OBTENCION DEL ID DEL USUARIO CREADO
