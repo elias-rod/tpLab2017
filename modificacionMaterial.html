@@ -1,0 +1,12 @@
+<form class="card">
+    <h1>Modificación de material</h1><br>
+    <input type="text" id="nombre" disabled="true"/>
+    <input type="text" id="precio"/><br>
+    <input type="radio" name="tipo" id="liquido" value="liquido"> Líquido
+    <input type="radio" name="tipo" id="solido" value="solido"> Sólido<br><br>
+    <div id="botonera">
+        <input type="button" value="Modificar" onclick="ModificarMaterial();"/>
+        <input type="button" value="Cancelar" onclick="Cargar('principalUsuario.html');"/>
+    </div>
+    <p id="mensajeError"></p>
+</form>

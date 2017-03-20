@@ -1,0 +1,16 @@
+<form class="card">
+    <h1>Modificación de usuario</h1><br>
+    <img src="" id="fotoPrevia" class="fotoPrevia">
+    <input type="file" id="foto"/ onchange="PrevisualizarFoto();">
+    <br><br>
+    <input type="text" id="email" disabled="true"/>
+    <input type="text" id="password"/><br>
+    <input type="radio" name="tipo" id="comprador" value="comprador"> Comprador
+    <input type="radio" name="tipo" id="vendedor" value="vendedor"> Vendedor
+  	<input type="radio" name="tipo" id="admin" value="admin"> Admin<br><br>
+    <div id="botonera">
+        <input type="button" value="Modificar" onclick="ModificarUsuario();"/>
+        <input type="button" value="Cancelar" onclick="Cargar('principalAdmin.html');"/>
+    </div>
+    <p id="mensajeError"></p>
+</form>

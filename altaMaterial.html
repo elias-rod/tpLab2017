@@ -1,0 +1,12 @@
+<form class="card">
+    <h1>Creación de material</h1><br>
+    <input type="text" id="nombre" placeholder="Nombre del material"/>
+    <input type="text" id="precio" placeholder="Precio del material"/><br>
+    <input type="radio" name="tipo" id="liquido" value="liquido"> Líquido
+    <input type="radio" name="tipo" id="solido" value="solido"> Sólido<br><br>
+    <div id="botonera">
+        <input type="button" value="Crear" onclick="CrearMaterial();"/>
+        <input type="button" value="Cancelar" onclick="Cargar('principalUsuario.html');"/>
+    </div>
+    <p id="mensajeError"></p>
+</form>

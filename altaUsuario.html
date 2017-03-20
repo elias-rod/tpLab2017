@@ -1,0 +1,16 @@
+<form class="card">
+    <h1>Creación de usuario</h1>
+    <img src="" id="fotoPrevia" class="fotoPrevia">
+    <input type="file" id="foto"/ onchange="PrevisualizarFoto();">
+    <br><br>
+    <input type="text" id="email" placeholder="Email"/>
+    <input type="text" id="password" placeholder="Contraseña"/><br>
+    <input type="radio" name="tipo" id="comprador" value="comprador"> Comprador
+    <input type="radio" name="tipo" id="vendedor" value="vendedor"> Vendedor
+  	<input type="radio" name="tipo" id="admin" value="admin"> Admin<br><br>
+    <div id="botonera">
+        <input type="button" value="Crear" onclick="CrearUsuario();"/>
+        <input type="button" value="Cancelar" onclick="Cargar('principalAdmin.html');"/>
+    </div>
+    <p id="mensajeError"></p>
+</form>
