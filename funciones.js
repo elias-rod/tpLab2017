@@ -158,13 +158,12 @@ function CrearUsuario(){
 	//AGREGADO DE LA FOTO AL FORMADATA
 	formData.append('foto', $('#foto')[0].files[0]);
 	//AGREGADO DE PARES CLAVE/VALOR AL FORMDATA
-	formData.append('accion', 'crearUsuario');
 	formData.append('email', email);
 	formData.append('password', password);
 	formData.append('tipo', tipo);
 
 	$.ajax({
-		url : 'nexo.php',
+		url : 'slim.php/crearUsuario',
 		method : 'POST',
 		data : formData,
 		//ESTAS OPCIONES DEBEN IR PARA QUE FORMDATA FUNCIONE
@@ -173,7 +172,7 @@ function CrearUsuario(){
 	}).then(
 		function(data){
 			//CONVERSION DEL STRING RECIBIDO A OBJETO
-			data = JSON.parse(data);
+			//data = JSON.parse(data);
 			//SI EL MENSAJE ES DISTINTO DE INDEFINIDO, EXISTE Y POR LO TANTO LO MUESTRA
 			if (data.mensaje != undefined) {
 				$('#mensajeError').html(data.mensaje);

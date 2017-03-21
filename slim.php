@@ -20,6 +20,47 @@ $app->get('/hello/{name}', function (Request $request, Response $response) {
     return $response;
 });
 
+//CREACION DE UN USUARIO
+$app->post('/crearUsuario', function (Request $request, Response $response) {
+	//DECODIFICACION DE DATOS DE FORMULARIO Y ALMACENAMIENTO EN ARRAY ASOCIATIVO
+	$datosForm = $request->getParsedBody();
+	//DECLARACION DEL ARRAY RESPUESTA (VACIO)
+	$respuesta = [];
+	//VALIDACION DEL TAMAÑO DE LA IMAGEN
+	if ($_FILES['foto']['size'] > (1 /*1MB*/ * 1024 * 1024)) {
+		$respuesta['mensaje'] = 'Cambie la imagen, solo se permiten tamaños imagenes de tamaño inferior a 1 MB';
+	}
+	//VALIDACION DE TIPO DE IMAGEN MEDIANTE EL INTENTO DE PROCESARLA COMO IMAGEN, SI IMAGENINICIAL ES FALSE, FALLO LA VALIDACION
+	else if(!($imagenInicial = imagecreatefromstring(file_get_contents($_FILES['foto']['tmp_name'])))) {
+		$respuesta['mensaje'] = 'Cambie la imagen, sólo se permiten imágenes con extensión .jpg .jpeg .bmp .gif o .png';
+	}
+	//CREACION DE USUARIO CON FOTO
+	else if(Usuario::CrearUsuario(new Usuario($datosForm['email'], $datosForm['password'], $datosForm['tipo']))){
+		//OBTENCION DEL ID DEL USUARIO CREADO
+		$idUsuario = Usuario::ObtenerUsuario($datosForm['email'], $datosForm['password'])['id'];
+		//OBTENCION DE LAS DIMENSIONES DE LA IMAGEN INICIAL
+		$imagenInicialAncho = imagesx($imagenInicial);
+		$imagenInicialAlto = imagesy($imagenInicial);
+		//CREACION DE UNA IMAGEN VACIA CON LAS DIMENSIONES DE LA IMAGEN INCIAL
+		$imagenFinal = imagecreatetruecolor($imagenInicialAncho, $imagenInicialAlto);
+		//COPIA DE LA IMAGEN INCIAL EN LA FINAL
+		imagecopy($imagenFinal, $imagenInicial, 0, 0, 0, 0, $imagenInicialAncho, $imagenInicialAlto);
+		//LIBERACION DE LA MEMORIA DE LA IMAGEN INICIAL
+		imagedestroy($imagenInicial);
+		//GUARDADO DEFINITIVO DE LA IMAGEN EN EL SERVIDOR CONVIRTIENDOLA EN FORMATO PNG
+		imagepng($imagenFinal, 'fotosUsuarios/' . $idUsuario . '.png');
+		//LIBERACION DE LA MEMORIA DE LA IMAGEN FINAL
+		imagedestroy($imagenFinal);
+		//ALMACENAMIENTO DE LA PAGINA PRINCIPAL DEL ADMIN EN LA RESPUESTA HTML
+		$respuesta['html'] = file_get_contents('principalAdmin.html');
+	}
+	//RESPUESTA POR USUARIO DUPLICADO
+	else{
+		$respuesta['mensaje'] = 'La persona ya existía previamente en la base de datos';
+	}
+	//CODIFICACION DE LA RESPUESTA
+	return $response->withJson($respuesta);
+});
 //GENERACION DEL HTML PARA LA TABLA PRINCIPAL DEL ADMIN
 $app->get('/tablaPrincipalAdmin', function (Request $request, Response $response) {
 	//GENERACION DE ARRAY DE USUARIOS
@@ -40,22 +81,21 @@ $app->get('/tablaPrincipalAdmin', function (Request $request, Response $response
 	}
 	return $response->withJson($respuesta);
 });
-
 //LOGUEO SI EXISTE COMBINACION DE EMAIL Y CONTRASEÑA
 $app->post('/loguear', function (Request $request, Response $response) {
 		//DECODIFICACION DE DATOS DE FORMULARIO Y ALMACENAMIENTO EN ARRAY ASOCIATIVO
-		$datosLogin = $request->getParsedBody();
+		$datosForm = $request->getParsedBody();
 		//DECLARACION DEL ARRAY RESPUESTA (VACIO)
 		$respuesta = [];
 		//BUSQUEDA DE COMBINACION DE EMAIL CON PASSWORD
-		$usuario = Usuario::ObtenerUsuario($datosLogin['emailIngresado'], $datosLogin['passwordIngresado']);
+		$usuario = Usuario::ObtenerUsuario($datosForm['emailIngresado'], $datosForm['passwordIngresado']);
 		$tipoUsuario = $usuario['tipo'];
 	    //INCLUSION DE LA PAGINA CORRECTA SI SE ENCONTRO ALGUNA COMBINACION
 	    if ($tipoUsuario != NULL){
 	    	//GENERACION DE LA SESION
 			$_SESSION['sesion'] = rand(0, 50000);
-			$_SESSION['email'] = $datosLogin['emailIngresado'];
-			$_SESSION['password'] = $datosLogin['passwordIngresado'];
+			$_SESSION['email'] = $datosForm['emailIngresado'];
+			$_SESSION['password'] = $datosForm['passwordIngresado'];
 			//UPDATEO DE LA SESION EN LA BASE DE DATOS
 			Usuario::UpdateSesionUsuario($_SESSION['email'], $_SESSION['password'], $_SESSION['sesion']);
 		    //INCLUSION DE LA PAGINA CORRECTA SEGUN EL TIPO DE USUARIO
@@ -79,8 +119,8 @@ $app->post('/loguear', function (Request $request, Response $response) {
 	    	$respuesta['mensaje'] = 'La combinación de usuario/contraseña no se encuentra en la base de datos.';
 	    }
 	    //CREACION DE COOKIE
-		if ($datosLogin['recordar'] == 'true') {
-			setcookie('email', $datosLogin['emailIngresado'], time() + (86400 * 30), "/"); // 86400 = 1 day
+		if ($datosForm['recordar'] == 'true') {
+			setcookie('email', $datosForm['emailIngresado'], time() + (86400 * 30), "/"); // 86400 = 1 day
 		}
 		//CODIFICACION DE LA RESPUESTA
 		return $response->withJson($respuesta);
