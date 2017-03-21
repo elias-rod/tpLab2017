@@ -206,12 +206,12 @@ function EliminarMaterial(nombre){
 //ELIMINACION DE UN USUARIO
 function EliminarUsuario(email, password){
 	$.ajax({
-		url : 'nexo.php',
-		method : 'POST',
-		data : {'accion' : 'eliminarUsuario', 'email' : email, 'password' : password}
+		url : 'slim.php/eliminarUsuario',
+		method : 'DELETE',
+		data : {'email' : email, 'password' : password}
 	}).then(
 		function(data){
-			$('#contenedor').html(data);
+			$('#contenedor').html(data.html);
 		},
 		function(jqXHR, textStatus, errorThrown){
 			$("#contenedor").html(jqXHR.responseText + '\n' + textStatus + '\n' + errorThrown);
@@ -325,14 +325,13 @@ function ModificarUsuario(){
 		formData.append('foto', $('#foto')[0].files[0]);
 	}
 	//AGREGADO DE PARES CLAVE/VALOR AL FORMDATA
-	formData.append('accion', 'modificarUsuario');
 	formData.append('email', email);
 	formData.append('password', password);
 	formData.append('tipo', tipo);
 
 	$.ajax({
-		url : 'nexo.php',
-		method : 'POST',
+		url : 'slim.php/modificarUsuario',
+		method : 'post',
 		data : formData,
 		//ESTAS OPCIONES DEBEN IR PARA QUE FORMDATA FUNCIONE
 		contentType: false,
@@ -340,7 +339,7 @@ function ModificarUsuario(){
 	}).then(
 		function(data){
 			//CONVERSION DEL STRING RECIBIDO A OBJETO
-			data = JSON.parse(data);
+			//data = JSON.parse(data);
 			//SI EL MENSAJE ES DISTINTO DE INDEFINIDO, EXISTE Y POR LO TANTO LO MUESTRA
 			if (data.mensaje != undefined) {
 				$('#mensajeError').html(data.mensaje);
@@ -376,13 +375,13 @@ function ObtenerCookie(){
 //SIMULACION DE SALIDA MEDIANTE REFRESH DE LA PAGINA
 function Salir(email, password){
 	$.ajax({
-		url : 'nexo.php',
-		method : 'POST',
-		data : {'accion' : 'salir', 'email' : email, 'password' : password}
+		url : 'slim.php/salir',
+		method : 'GET',
+		data : {'email' : email, 'password' : password}
 	}).then(
 		function(data){
 			$('#header').html('');
-			$('#contenedor').html(data);
+			$('#contenedor').html(data.html);
 		},
 		function(jqXHR, textStatus, errorThrown){
 			$("#contenedor").html(jqXHR.responseText + '\n' + textStatus + '\n' + errorThrown);

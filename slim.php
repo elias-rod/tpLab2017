@@ -19,7 +19,74 @@ $app->get('/hello/{name}', function (Request $request, Response $response) {
 
     return $response;
 });
-
+//SALIDA DEL ABM CON DESTRUCCION DE LA SESION
+$app->get('/salir', function (Request $request, Response $response) {
+    //DECODIFICACION DE DATOS DE FORMULARIO Y ALMACENAMIENTO EN ARRAY ASOCIATIVO
+	$datosForm = $request->getParsedBody();
+	Usuario::UpdateSesionUsuario($datosForm['email'], $datosForm['password'], '0'));
+	session_unset();
+	session_destroy();
+	//ALMACENAMIENTO DE LA PAGINA PRINCIPAL DEL ADMIN EN LA RESPUESTA HTML
+	$respuesta['html'] = file_get_contents('login.html');
+	//CODIFICACION DE LA RESPUESTA
+	return $response->withJson($respuesta);
+});
+//MODIFICACION DE UN USUARIO
+$app->post('/modificarUsuario', function (Request $request, Response $response) {
+    //DECODIFICACION DE DATOS DE FORMULARIO Y ALMACENAMIENTO EN ARRAY ASOCIATIVO
+	$datosForm = $request->getParsedBody();
+	//MODIFICACION DE USUARIO EN LA BASE DE DATOS
+    Usuario::ModificarUsuario(new Usuario($datosForm['email'], $datosForm['password'], $datosForm['tipo']));
+    //VERIFICACION DE QUE SE HAYA SUBIDO UNA NUEVA FOTO (ES OPCIONAL CAMBIAR LA FOTO)
+    if (isset($_FILES['foto'])) {
+    	//DECLARACION DEL ARRAY RESPUESTA (VACIO)
+		$respuesta = [];
+    	//OBTENCION DEL ID DEL USUARIO CREADO
+		$idUsuario = Usuario::ObtenerUsuario($datosForm['email'], $datosForm['password'])['id'];
+		//ELIMINACION DE LA FOTO DEL USUARIO
+		unlink('fotosUsuarios/' . $idUsuario . '.png');
+		//VALIDACION DEL TAMAÑO DE LA IMAGEN
+		if ($_FILES['foto']['size'] > (1 /*1MB*/ * 1024 * 1024)) {
+			$respuesta['mensaje'] = 'Cambie la imagen, solo se permiten tamaños imagenes de tamaño inferior a 1 MB';
+		}
+		//VALIDACION DE TIPO DE IMAGEN MEDIANTE EL INTENTO DE PROCESARLA COMO IMAGEN, SI IMAGENINICIAL ES FALSE, FALLO LA VALIDACION
+		else if(!($imagenInicial = imagecreatefromstring(file_get_contents($_FILES['foto']['tmp_name'])))) {
+			$respuesta['mensaje'] = 'Cambie la imagen, sólo se permiten imágenes con extensión .jpg .jpeg .bmp .gif o .png';
+		}
+		//OBTENCION DE LAS DIMENSIONES DE LA IMAGEN INICIAL
+		$imagenInicialAncho = imagesx($imagenInicial);
+		$imagenInicialAlto = imagesy($imagenInicial);
+		//CREACION DE UNA IMAGEN VACIA CON LAS DIMENSIONES DE LA IMAGEN INCIAL
+		$imagenFinal = imagecreatetruecolor($imagenInicialAncho, $imagenInicialAlto);
+		//COPIA DE LA IMAGEN INCIAL EN LA FINAL
+		imagecopy($imagenFinal, $imagenInicial, 0, 0, 0, 0, $imagenInicialAncho, $imagenInicialAlto);
+		//LIBERACION DE LA MEMORIA DE LA IMAGEN INICIAL
+		imagedestroy($imagenInicial);
+		//GUARDADO DEFINITIVO DE LA IMAGEN EN EL SERVIDOR CONVIRTIENDOLA EN FORMATO PNG
+		imagepng($imagenFinal, 'fotosUsuarios/' . $idUsuario . '.png');
+		//LIBERACION DE LA MEMORIA DE LA IMAGEN FINAL
+		imagedestroy($imagenFinal);
+    }
+	//ALMACENAMIENTO DE LA PAGINA PRINCIPAL DEL ADMIN EN LA RESPUESTA HTML
+	$respuesta['html'] = file_get_contents('principalAdmin.html');
+	//CODIFICACION DE LA RESPUESTA
+	return $response->withJson($respuesta);
+});
+//ELIMINACION DE UN USUARIO DE LA BASE DE DATOS
+$app->delete('/eliminarUsuario', function (Request $request, Response $response) {
+	//DECODIFICACION DE DATOS DE FORMULARIO Y ALMACENAMIENTO EN ARRAY ASOCIATIVO
+	$datosForm = $request->getParsedBody();
+	//OBTENCION DEL ID DEL USUARIO CREADO
+	$idUsuario = Usuario::ObtenerUsuario($datosForm['email'], $datosForm['password'])['id'];
+	//ELIMINACION DE LA BASE DE DATOS
+	Usuario::EliminarUsuario($datosForm['email']);
+	//ELIMINACION DE LA FOTO DEL USUARIO
+	unlink('fotosUsuarios/' . $idUsuario . '.png');
+	//ALMACENAMIENTO DE LA PAGINA PRINCIPAL DEL ADMIN EN LA RESPUESTA HTML
+	$respuesta['html'] = file_get_contents('principalAdmin.html');
+	//CODIFICACION DE LA RESPUESTA
+	return $response->withJson($respuesta);
+});
 //CREACION DE UN USUARIO
 $app->post('/crearUsuario', function (Request $request, Response $response) {
 	//DECODIFICACION DE DATOS DE FORMULARIO Y ALMACENAMIENTO EN ARRAY ASOCIATIVO
