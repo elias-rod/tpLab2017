@@ -1,4 +1,9 @@
 <?php
+//CREA LA SESION
+//Disable PHP’s session cache limiter so that PHP does not send conflicting cache expiration headers with the HTTP response
+session_cache_limiter(false);
+session_start();
+
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
@@ -19,12 +24,18 @@ $app->get('/hello/{name}', function (Request $request, Response $response) {
 
     return $response;
 });
+//BORRADO DE LA COOKIE MEDIANTE UN VALOR NEGATIVO
+$app->delete('/borrarCookie', function (Request $request, Response $response) {
+	setcookie('email', '', time() - 1, "/");
+	return $response;
+});
 //SALIDA DEL ABM CON DESTRUCCION DE LA SESION
 $app->get('/salir', function (Request $request, Response $response) {
-    //DECODIFICACION DE DATOS DE FORMULARIO Y ALMACENAMIENTO EN ARRAY ASOCIATIVO
-	$datosForm = $request->getParsedBody();
-	Usuario::UpdateSesionUsuario($datosForm['email'], $datosForm['password'], '0'));
+	//CAMBIO DE LA SESSION EN BASE DE DATOS A CERO
+	Usuario::UpdateSesionUsuario($_SESSION['email'], $_SESSION['password'], '0');
+	//REMOCION DE TODAS LAS VARIABLES DE SESION
 	session_unset();
+	//DESTRUCCION DE LA SESION
 	session_destroy();
 	//ALMACENAMIENTO DE LA PAGINA PRINCIPAL DEL ADMIN EN LA RESPUESTA HTML
 	$respuesta['html'] = file_get_contents('login.html');

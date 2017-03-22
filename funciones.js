@@ -1,9 +1,8 @@
 //BORRADO DE COOKIE
 function BorrarCookie(){
 	$.ajax({
-		url : 'nexo.php',
-		method : 'POST',
-		data : {'accion' : 'borrarCookie'}
+		url : 'slim.php/borrarCookie',
+		method : 'delete'
 	}).then(
 		function(){
 			alert("Cookie borrada");
@@ -373,13 +372,13 @@ function ObtenerCookie(){
 	);
 }
 //SIMULACION DE SALIDA MEDIANTE REFRESH DE LA PAGINA
-function Salir(email, password){
+function Salir(){
 	$.ajax({
 		url : 'slim.php/salir',
-		method : 'GET',
-		data : {'email' : email, 'password' : password}
+		method : 'GET'
 	}).then(
 		function(data){
+			console.log(data);
 			$('#header').html('');
 			$('#contenedor').html(data.html);
 		},
